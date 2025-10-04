@@ -1,6 +1,7 @@
 package model.player
 
 import model.card.*
+import model.effect.*
 
 class PlayerTest extends munit.FunSuite:
 
@@ -45,6 +46,17 @@ class PlayerTest extends munit.FunSuite:
     }
   }
 
+  test("create player with Unicode name") {
+    val p = Player("アリス", 2) // Japanese "Alice"
+    assertEquals(p.name, "アリス")
+  }
+
+  test("create player with very long name") {
+    val longName = "a" * 1000
+    val p = Player(longName, 2)
+    assertEquals(p.name.length, 1000)
+  }
+
   // Initial state tests
   test("new player has empty deck") {
     assertEquals(player.deckSize, 0)
@@ -73,6 +85,12 @@ class PlayerTest extends munit.FunSuite:
     player.addToDeck(card2)
     player.addToDeck(card3)
     assertEquals(player.deckSize, 3)
+  }
+
+  test("add duplicate cards to deck is allowed") {
+    player.addToDeck(card1)
+    player.addToDeck(card1) // Same card instance
+    assertEquals(player.deckSize, 2)
   }
 
   test("shuffle deck maintains deck size") {
@@ -116,6 +134,20 @@ class PlayerTest extends munit.FunSuite:
     assertEquals(count, 2)
     assertEquals(player.deckSize, 1)
     assertEquals(player.handSize, 2)
+  }
+
+  test("draw zero cards") {
+    player.addToDeck(card1)
+    val count = player.drawCards(0)
+    assertEquals(count, 0)
+    assertEquals(player.handSize, 0)
+    assertEquals(player.deckSize, 1)
+  }
+
+  test("draw negative cards throws exception") {
+    intercept[IllegalArgumentException] {
+      player.drawCards(-1)
+    }
   }
 
   test("draw cards respects deck size limit") {
@@ -186,6 +218,14 @@ class PlayerTest extends munit.FunSuite:
   test("play card from empty hand returns None") {
     val played = player.playCard(card1)
     assert(played.isEmpty)
+  }
+
+  test("play same card twice returns None second time") {
+    player.addToDeck(card1)
+    player.drawCard()
+
+    assert(player.playCard(card1).isDefined) // First play succeeds
+    assert(player.playCard(card1).isEmpty)   // Second fails (card not in hand)
   }
 
   test("can play multiple cards") {
@@ -271,7 +311,7 @@ class PlayerTest extends munit.FunSuite:
 
   test("players with different deck contents are not equal") {
     val p1 = Player("Alice", 2)
-    val p2 = Player("Alice", 2)
+    val p2= Player("Alice", 2)
 
     p1.addToDeck(card1)
     assertNotEquals(p1, p2)

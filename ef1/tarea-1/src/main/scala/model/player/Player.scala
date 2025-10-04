@@ -5,8 +5,13 @@ import scala.collection.mutable
 
 /** Represents a player in the game.
  *
- * @param name the player's name
- * @param initialGems the starting number of gems (default 2)
+ * Each player has a name, a number of gems (representing lives),
+ * a deck of cards, and a hand of up to 10 cards. Players can
+ * draw cards from their deck, play cards from their hand, and
+ * lose gems when losing rounds.
+ *
+ * @param name the player's name (must be non-empty)
+ * @param initialGems the starting number of gems (must be >= 0, default 2)
  */
 class Player(val name: String, initialGems: Int = 2):
   require(initialGems >= 0, "Initial gems cannot be negative")
@@ -58,10 +63,11 @@ class Player(val name: String, initialGems: Int = 2):
 
   /** Draws multiple cards from the deck.
    *
-   * @param count the number of cards to draw
+   * @param count the number of cards to draw (must be >= 0)
    * @return the number of cards actually drawn
    */
   def drawCards(count: Int): Int =
+    require(count >= 0, "Cannot draw negative number of cards")
     var drawn = 0
     for _ <- 0 until count do
       if drawCard().isDefined then

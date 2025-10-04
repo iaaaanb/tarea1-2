@@ -2,6 +2,9 @@ package model.card
 
 /** Represents a weather card that affects the battlefield.
  *
+ * Weather cards are placed in a shared zone and apply effects
+ * to specific types of units across both players' fields.
+ *
  * @param name the name of the card
  * @param weatherType the type of weather effect
  */
